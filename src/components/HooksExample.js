@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { getSingle } from "../utils";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { getSingle, useSingleHook } from "../utils";
 
 export default function HooksExample({ id }) {
   const [data, setData] = useState();
   const [dummyData, setDummyData] = useState(0);
+  const newData = useSingleHook(id);
 
   useEffect(() => {
     console.log("[HooksExample] data recomputing in useEffect");
@@ -20,17 +21,24 @@ export default function HooksExample({ id }) {
     return getSingle(id);
   }, [id]);
 
+  const handleClick = useCallback(() => {
+    setDummyData(dummyData + 1);
+  }, [dummyData]);
+
   return (
     <React.Fragment>
       <pre>
         HooksExample
         {JSON.stringify({ data }, null, 2)}
         {JSON.stringify({ memoData }, null, 2)}
+        {JSON.stringify({ newData }, null, 2)}
       </pre>
-      <button onClick={() => setDummyData(dummyData + 1)}>
-        {" "}
-        Zmień dummy data
-      </button>
+      <Button onClick={handleClick}>Zmień dummy data</Button>
     </React.Fragment>
   );
 }
+
+const Button = React.memo(({ onClick, children }) => {
+  console.log({ onClick });
+  return <button onclick={onClick}>{children}</button>;
+});
